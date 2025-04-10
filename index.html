@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Éteignage Automatique</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @font-face {
+            font-family: 'Rimouski';
+            src: url('https://fonts.cdnfonts.com/css/rimouski') format('woff2');
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: 'Rimouski', sans-serif;
+            background: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: minmax(400px, 1fr) minmax(500px, 2fr) minmax(400px, 1fr);
+            background: linear-gradient(135deg, 
+                #FFE5CC 0%,
+                #FFD6CC 50%,
+                #FFCCC4 100%
+            );
+        }
+
+        .left-column {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .left-column::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 10%;
+            height: 80%;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, #e0e0e0, transparent);
+        }
+
+        .center-column {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .right-column {
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .right-column::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, #e0e0e0, transparent);
+        }
+
+        .explanation-text {
+            font-size: 18px;
+            color: #666;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            padding: 20px 25px;
+            background: rgba(33, 150, 243, 0.05);
+            border-left: 3px solid #2196F3;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .progress {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #29B1B0, #00B2B9);
+            transition: width 1s linear;
+        }
+
+        .progress.warning {
+            background: linear-gradient(90deg, #E53C16, #F29F05);
+        }
+
+        .message {
+            font-size: clamp(36px, 5vw, 48px);
+            color: #333;
+            margin: 0;
+            line-height: 1.2;
+            font-weight: 500;
+        }
+
+        .tips-container {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .tip-item {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+            transform: translateY(20px);
+        }
+
+        .tip-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tip-text {
+            font-size: clamp(24px, 2.5vw, 32px);
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.95);
+        }
+
+        .image-item.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .tip-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        }
+
+        .button-container {
+            align-self: flex-end;
+        }
+
+        .stay-here-button {
+            background: linear-gradient(135deg, #29B1B0, #00B2B9);
+            border: none;
+            color: white;
+            padding: 20px 40px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: clamp(20px, 2.5vw, 28px);
+            cursor: pointer;
+            border-radius: 50px;
+            font-family: 'Rimouski', sans-serif;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(41, 177, 176, 0.3);
+        }
+
+        .stay-here-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(41, 177, 176, 0.4);
+            background: linear-gradient(135deg, #00B2B9, #29B1B0);
+        }
+
+        .stay-here-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr 1.5fr 1fr;
+            }
+            
+            .left-column, .right-column {
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-column">
+            <div class="tips-container">
+                <div class="tip-item" id="tip1">
+                    <span class="tip-text">Éteignez votre écran quand vous ne l'utilisez pas</span>
+                </div>
+                <div class="tip-item" id="tip2">
+                    <span class="tip-text">Utilisez le mode économie d'énergie de votre ordinateur</span>
+                </div>
+                <div class="tip-item" id="tip3">
+                    <span class="tip-text">Débranchez les périphériques non utilisés</span>
+                </div>
+                <div class="tip-item" id="tip4">
+                    <span class="tip-text">Fermez les applications en arrière-plan</span>
+                </div>
+                <div class="tip-item" id="tip5">
+                    <span class="tip-text">Maintenez une température ambiante optimale</span>
+                </div>
+                <div class="tip-item" id="tip6">
+                    <span class="tip-text">Chaque petit geste compte pour la planète</span>
+                </div>
+                <div class="tip-item" id="tip7">
+                    <span class="tip-text">Même en veille, votre ordinateur continue de consommer de l'énergie</span>
+                    <div class="chart-container">
+                        <canvas id="energyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="center-column">
+            <div class="image-container">
+                <div class="image-item" id="image1">
+                    <img class="tip-image" src="assets/ecran.png" alt="Écran éteint">
+                </div>
+                <div class="image-item" id="image2">
+                    <img class="tip-image" src="assets/economie.png" alt="Économie d'énergie">
+                </div>
+                <div class="image-item" id="image3">
+                    <img class="tip-image" src="assets/peripheriques.png" alt="Périphériques">
+                </div>
+                <div class="image-item" id="image4">
+                    <img class="tip-image" src="assets/applications.png" alt="Applications">
+                </div>
+                <div class="image-item" id="image5">
+                    <img class="tip-image" src="assets/temperature.png" alt="Température">
+                </div>
+                <div class="image-item" id="image6">
+                    <img class="tip-image" src="assets/planete.png" alt="Planète">
+                </div>
+                <div class="image-item" id="image7">
+                    <img class="tip-image" src="assets/graph.png" alt="Graphique">
+                </div>
+            </div>
+        </div>
+        <div class="right-column">
+            <div>
+                <div class="message">Coucou, vous êtes toujours là ?</div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="explanation-text">
+                    Il est tard et votre ordinateur est toujours allumé. Cette alerte s'affiche pour éviter une consommation d'énergie inutile en cas d'oubli d'extinction.
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="stay-here-button" id="stayHereButton">Je suis toujours là</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        let timeLeft = 15 * 60; // 15 minutes en secondes
+        const progressBar = document.getElementById('progress');
+        const stayHereButton = document.getElementById('stayHereButton');
+        const tips = document.querySelectorAll('.tip-item');
+        const images = document.querySelectorAll('.image-item');
+        let currentTip = 0;
+        
+        function showNextTip() {
+            tips[currentTip].classList.remove('active');
+            images[currentTip].classList.remove('active');
+            currentTip = (currentTip + 1) % tips.length;
+            tips[currentTip].classList.add('active');
+            images[currentTip].classList.add('active');
+        }
+
+        function updateProgress() {
+            const percentage = (timeLeft / (15 * 60)) * 100;
+            progressBar.style.width = `${percentage}%`;
+            
+            if (timeLeft <= 4 * 60) { // 4 minutes restantes
+                progressBar.classList.add('warning');
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                ipcRenderer.send('shutdown-computer');
+            }
+            
+            timeLeft--;
+        }
+
+        function closeApp() {
+            ipcRenderer.send('close-app');
+        }
+
+        // Afficher le premier conseil et image
+        tips[0].classList.add('active');
+        images[0].classList.add('active');
+        
+        // Changer de conseil toutes les 8 secondes
+        setInterval(showNextTip, 8000);
+        
+        stayHereButton.addEventListener('click', closeApp);
+        const timer = setInterval(updateProgress, 1000);
+
+        // Création du graphique
+        const ctx = document.getElementById('energyChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['0h', '2h', '4h', '6h', '8h', '10h', '12h'],
+                datasets: [{
+                    label: 'Consommation en Watts',
+                    data: [100, 95, 98, 35, 40, 38, 35],
+                    fill: true,
+                    backgroundColor: (context) => {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) return null;
+                        
+                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                        gradient.addColorStop(0, 'rgba(41, 177, 176, 0.1)');
+                        gradient.addColorStop(0.5, 'rgba(0, 178, 185, 0.3)');
+                        gradient.addColorStop(1, 'rgba(242, 159, 5, 0.4)');
+                        return gradient;
+                    },
+                    borderColor: (context) => {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) return null;
+                        
+                        const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                        gradient.addColorStop(0, '#29B1B0');
+                        gradient.addColorStop(0.5, '#00B2B9');
+                        gradient.addColorStop(1, '#F29F05');
+                        return gradient;
+                    },
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 120,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                family: 'Rimouski'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Watts',
+                            color: '#666',
+                            font: {
+                                family: 'Rimouski',
+                                size: 14
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                family: 'Rimouski'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 
