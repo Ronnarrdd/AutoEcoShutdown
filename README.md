@@ -27,7 +27,7 @@ Une application élégante et intuitive pour gérer l'extinction automatique de 
 - L'application s'ouvre avec un compte à rebours de 15 minutes
 - Un message d'avertissement s'affiche à 4 minutes
 - Des conseils d'économie d'énergie défilent automatiquement
-- Cliquez sur "Rester ici" pour annuler l'extinction (Comme sur un téléviseur !)
+- Cliquez sur "Je suis toujours là" pour annuler l'extinction (Comme sur un téléviseur !)
 
 ## 📦 Structure du projet
 
