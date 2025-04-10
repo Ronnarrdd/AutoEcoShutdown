@@ -1,5 +1,5 @@
 {
-  "name": "eteignageauto",
+  "name": "auto-shutdown",
   "version": "1.0.0",
   "description": "Application d'extinction automatique",
   "main": "main.js",
@@ -18,7 +18,7 @@
   },
   "build": {
     "appId": "com.eteignageauto.app",
-    "productName": "Éteignage Auto",
+    "productName": "AutoEcoShutdown",
     "directories": {
       "output": "dist"
     },
