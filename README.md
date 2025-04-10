@@ -36,7 +36,6 @@ auto-shutdown/
 ├── assets/           # Images et ressources
 ├── main.js          # Processus principal Electron
 ├── index.html       # Interface utilisateur
-├── styles.css       # Styles de l'application
 └── package.json     # Configuration du projet
 ```
 
