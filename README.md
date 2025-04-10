@@ -4,7 +4,9 @@
 ![Electron](https://img.shields.io/badge/Electron-28.1.0-green)
 ![License](https://img.shields.io/badge/license-ISC-orange)
 
-Une application qui permets de gérer l'extinction automatique des ordinateurs de votre organisation, avec des conseils d'économie d'énergie.
+![Interface de l'application](docs/screenshot.png)
+
+Une application élégante et intuitive pour gérer l'extinction automatique de votre ordinateur, avec des conseils d'économie d'énergie.
 
 ## 🌟 Fonctionnalités
 
