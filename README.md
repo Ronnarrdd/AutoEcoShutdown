@@ -23,10 +23,9 @@ Une application élégante et intuitive pour gérer l'extinction automatique de 
 
 ## 🎯 Utilisation
 
-Une fois configurée, l'application :
-- S'ouvre automatiquement à l'heure programmée
-- Affiche un compte à rebours de 15 minutes
-- Vous permet d'annuler l'extinction avec le bouton "Je suis toujours là"
+- L'application s'ouvre avec un compte à rebours de 15 minutes
+- Un message d'avertissement s'affiche à 4 minutes
+- Cliquez sur "Rester ici" pour annuler l'extinction (Comme sur un téléviseur !)
 
 ## 📦 Structure des fichiers
 
