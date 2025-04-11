@@ -12,31 +12,29 @@ Une application élégante et intuitive pour gérer l'extinction automatique de 
 
 - ⏱️ Compte à rebours de 15 minutes avant l'extinction
 - 💡 Conseils d'économie d'énergie avec illustrations
-- 📊 Graphique de consommation d'énergie
 - 🎨 Interface moderne et élégante
 - 🖥️ Application portable (pas d'installation nécessaire)
 
 ## 🚀 Installation
 
 1. Téléchargez la dernière version depuis la section [Releases](https://github.com/Ronnarrdd/AutoEcoShutdown/releases/)
-2. Faites une tâche planifiée pour executer `AutoEcoShutdown.exe`
-3. L'application est prête à être utilisée !
+2. Placez `launch.bat` et `AutoEcoShutdown.exe` dans le même dossier
+3. Créez une tâche planifiée dans Windows pour exécuter `launch.bat` à l'heure souhaitée
 
 ## 🎯 Utilisation
 
-- L'application s'ouvre avec un compte à rebours de 15 minutes
-- Un message d'avertissement s'affiche à 4 minutes
-- Des conseils d'économie d'énergie défilent automatiquement
-- Cliquez sur "Rester ici" pour annuler l'extinction (Comme sur un téléviseur !)
+Une fois configurée, l'application :
+- S'ouvre automatiquement à l'heure programmée
+- Affiche un compte à rebours de 15 minutes
+- Vous permet d'annuler l'extinction avec le bouton "Je suis toujours là"
 
-## 📦 Structure du projet
+## 📦 Structure des fichiers
 
 ```
 auto-shutdown/
 ├── assets/           # Images et ressources
 ├── main.js          # Processus principal Electron
 ├── index.html       # Interface utilisateur
-├── styles.css       # Styles de l'application
 └── package.json     # Configuration du projet
 ```
 
