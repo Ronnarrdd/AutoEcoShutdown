@@ -193,6 +193,83 @@
             align-self: flex-end;
         }
 
+        .eco-dashboard {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 3px solid #FF9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        .eco-title {
+            font-size: 20px;
+            color: #F57C00;
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .eco-title::before {
+            content: '⚠️';
+            margin-right: 8px;
+        }
+
+        .eco-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #D84315;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .eco-equivalents {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .equivalent-item {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .equivalent-item::before {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .equivalent-trees::before { content: '🌳'; }
+        .equivalent-car::before { content: '🚗'; }
+        .equivalent-co2::before { content: '💨'; }
+
         .stay-here-button {
             background: linear-gradient(135deg, #29B1B0, #00B2B9);
             border: none;
@@ -295,6 +372,42 @@
                 <div class="explanation-text">
                     Il est tard et votre ordinateur est toujours allumé. Cette alerte s'affiche pour éviter une consommation d'énergie inutile en cas d'oubli d'extinction.
                 </div>
+
+                <!-- Tableau de bord écologique -->
+                <div class="eco-dashboard">
+                    <div class="eco-title">Gaspillage Énergétique</div>
+                    
+                    <div class="eco-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="currentWatts">-</div>
+                            <div class="metric-label">Watts actuels</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="hoursUntilMorning">-</div>
+                            <div class="metric-label">Heures jusqu'au matin</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="energyWasted">-</div>
+                            <div class="metric-label">Wh gaspillés si laissé allumé</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="cpuUsage">-</div>
+                            <div class="metric-label">CPU utilisé</div>
+                        </div>
+                    </div>
+                    
+                    <div class="eco-equivalents">
+                        <div class="equivalent-item equivalent-co2">
+                            <span id="co2Equivalent">Calcul en cours...</span>
+                        </div>
+                        <div class="equivalent-item equivalent-trees">
+                            <span id="treesEquivalent">Calcul en cours...</span>
+                        </div>
+                        <div class="equivalent-item equivalent-car">
+                            <span id="carEquivalent">Calcul en cours...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="button-container">
                 <button class="stay-here-button" id="stayHereButton">Je suis toujours là</button>
@@ -349,15 +462,84 @@
         stayHereButton.addEventListener('click', closeApp);
         const timer = setInterval(updateProgress, 1000);
 
-        // Création du graphique
+        // Fonction pour mettre à jour les données écologiques
+        async function updateEcoData() {
+            try {
+                const ecoData = await ipcRenderer.invoke('get-eco-data');
+                
+                // Mettre à jour les métriques
+                document.getElementById('currentWatts').textContent = ecoData.currentWatts + 'W';
+                document.getElementById('hoursUntilMorning').textContent = ecoData.hoursUntilMorning + 'h';
+                document.getElementById('energyWasted').textContent = ecoData.energyWastedWh + 'Wh';
+                document.getElementById('cpuUsage').textContent = ecoData.cpuUsage + '%';
+                
+                // Mettre à jour les équivalents écologiques (gaspillage)
+                document.getElementById('co2Equivalent').textContent = 
+                    `${ecoData.co2WastedKg} kg de CO₂ gaspillés jusqu'au matin`;
+                
+                if (ecoData.treesEquivalent >= 0.001) {
+                    document.getElementById('treesEquivalent').textContent = 
+                        `Impact de ${ecoData.treesEquivalent.toFixed(3)} arbre à replanter`;
+                } else {
+                    document.getElementById('treesEquivalent').textContent = 
+                        'Chaque minute compte pour la planète !';
+                }
+                
+                if (ecoData.carKmEquivalent >= 0.1) {
+                    document.getElementById('carEquivalent').textContent = 
+                        `Comme rouler ${ecoData.carKmEquivalent.toFixed(1)} km en voiture`;
+                } else {
+                    document.getElementById('carEquivalent').textContent = 
+                        'Pollution équivalente à quelques mètres en voiture';
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données écologiques:', error);
+            }
+        }
+
+        // Fonction pour mettre à jour le graphique
+        async function updateChart() {
+            try {
+                const ecoData = await ipcRenderer.invoke('get-eco-data');
+                const now = new Date();
+                const timeLabel = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0');
+                
+                realTimeData.push(ecoData.currentWatts);
+                timeLabels.push(timeLabel);
+                
+                // Garder seulement les 20 derniers points
+                if (realTimeData.length > 20) {
+                    realTimeData.shift();
+                    timeLabels.shift();
+                }
+                
+                energyChart.update();
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour du graphique:', error);
+            }
+        }
+
+        // Mettre à jour les données écologiques toutes les 5 secondes
+        updateEcoData(); // Première mise à jour immédiate
+        setInterval(updateEcoData, 5000);
+        
+        // Mettre à jour le graphique toutes les 10 secondes
+        updateChart(); // Première mise à jour immédiate
+        setInterval(updateChart, 10000);
+
+        // Création du graphique avec données temps réel
         const ctx = document.getElementById('energyChart');
-        new Chart(ctx, {
+        const realTimeData = [];
+        const timeLabels = [];
+        
+        const energyChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['0h', '2h', '4h', '6h', '8h', '10h', '12h'],
+                labels: timeLabels,
                 datasets: [{
                     label: 'Consommation en Watts',
-                    data: [100, 95, 98, 35, 40, 38, 35],
+                    data: realTimeData,
                     fill: true,
                     backgroundColor: (context) => {
                         const chart = context.chart;

@@ -14,7 +14,8 @@
     "electron-builder": "^24.9.1"
   },
   "dependencies": {
-    "chart.js": "^4.4.1"
+    "chart.js": "^4.4.1",
+    "systeminformation": "^5.27.8"
   },
   "build": {
     "appId": "com.eteignageauto.app",
