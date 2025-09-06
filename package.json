@@ -1,7 +1,7 @@
 {
   "name": "auto-shutdown",
-  "version": "1.0.0",
-  "description": "Application d'extinction automatique",
+  "version": "1.1.0",
+  "description": "Application d'extinction automatique avec tableau de bord écologique",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
