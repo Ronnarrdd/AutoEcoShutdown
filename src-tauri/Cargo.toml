@@ -1,0 +1,31 @@
+[package]
+name = "auto-eco-shutdown"
+version = "1.1.0"
+description = "Application d'extinction automatique avec tableau de bord écologique"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = [ "window-set-always-on-top", "window-center", "window-set-focus", "window-show", "window-start-dragging"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sysinfo = "0.30"
+chrono = "0.4"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
+
+

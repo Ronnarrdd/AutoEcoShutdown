@@ -1,0 +1,21 @@
+{
+  "name": "auto-eco-shutdown-tauri",
+  "version": "1.1.0",
+  "description": "Application d'extinction automatique avec tableau de bord écologique (Tauri)",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "build:release": "tauri build --release"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.0"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.0"
+  }
+}
+
+
