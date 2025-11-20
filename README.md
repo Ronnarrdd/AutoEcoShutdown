@@ -8,6 +8,8 @@ Une application élégante et intuitive pour gérer l'extinction automatique de 
 
 **Version Tauri - Application ultra-légère construite avec Rust et Web Technologies**
 
+![Screenshot de l'application](docs/screenshot.png)
+
 ## 🌟 Fonctionnalités
 
 - ⏱️ Compte à rebours de 15 minutes avant l'extinction
@@ -95,7 +97,7 @@ Ce projet est sous licence ISC. Voir le fichier `LICENSE` pour plus de détails.
 ## 🙏 Remerciements
 
 - Police Rimouski pour l'élégance typographique
-- Chart.js pour les graphiques temps réel
+- [Chart.js](https://www.chartjs.org/) pour les graphiques temps réel
 - Tauri pour le framework d'application desktop ultra-léger
 - sysinfo pour les données système réelles en Rust
 - [Écologie stickers](https://www.flaticon.com/fr/stickers-gratuites/ecologie) créés par [paulalee](https://www.flaticon.com/fr/auteurs/paulalee) - [Flaticon](https://www.flaticon.com/fr/)
