@@ -1,6 +1,6 @@
 {
   "name": "auto-eco-shutdown-tauri",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Application d'extinction automatique avec tableau de bord écologique (Tauri)",
   "scripts": {
     "tauri": "tauri",
