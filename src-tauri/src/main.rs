@@ -160,15 +160,35 @@ fn main() {
         .setup(|app| {
             let window = app.get_window("main").unwrap();
             
-            // Configurer la fenêtre à 80% de la taille de l'écran
+            // Configurer la fenêtre pour s'adapter à la résolution de l'écran
             if let Some(monitor) = window.current_monitor().ok().flatten() {
-                let size = monitor.size();
-                let window_width = (size.width as f64 * 0.8) as u32;
-                let window_height = (size.height as f64 * 0.8) as u32;
+                let screen_size = monitor.size();
+                let screen_width = screen_size.width as f64;
+                let screen_height = screen_size.height as f64;
+                
+                // Taille maximale souhaitée (80% de l'écran)
+                let desired_width = screen_width * 0.8;
+                let desired_height = screen_height * 0.8;
+                
+                // Taille minimale pour garantir la lisibilité
+                let min_width = 800.0;
+                let min_height = 600.0;
+                
+                // Taille maximale (ne pas dépasser 90% pour laisser de la marge)
+                let max_width = screen_width * 0.9;
+                let max_height = screen_height * 0.9;
+                
+                // Calculer la taille finale en respectant les limites
+                let window_width = desired_width.max(min_width).min(max_width) as u32;
+                let window_height = desired_height.max(min_height).min(max_height) as u32;
+                
+                // S'assurer que la fenêtre ne dépasse jamais l'écran
+                let final_width = window_width.min(screen_size.width);
+                let final_height = window_height.min(screen_size.height);
                 
                 let _ = window.set_size(tauri::Size::Physical(tauri::PhysicalSize {
-                    width: window_width,
-                    height: window_height,
+                    width: final_width,
+                    height: final_height,
                 }));
             }
             
