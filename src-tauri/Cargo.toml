@@ -5,7 +5,7 @@ description = "Application d'extinction automatique avec tableau de bord écolog
 authors = ["you"]
 license = ""
 repository = ""
-edition = "2025"
+edition = "2021"
 
 [build-dependencies]
 tauri-build = { version = "1.5", features = [] }

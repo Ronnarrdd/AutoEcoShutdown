@@ -26,7 +26,7 @@
             height: 100%;
             box-sizing: border-box;
             display: grid;
-            grid-template-columns: minmax(400px, 1fr) minmax(500px, 2fr) minmax(400px, 1fr);
+            grid-template-columns: 1fr 1.5fr 1fr;
             background: linear-gradient(135deg, 
                 #FFE5CC 0%,
                 #FFD6CC 50%,
@@ -303,12 +303,92 @@
         }
 
         @media (max-width: 1200px) {
+            html, body {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
             .container {
-                grid-template-columns: 1fr 1.5fr 1fr;
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas: 
+                    "left right"
+                    "center center";
+                height: auto;
+                min-height: 100vh;
+                display: grid;
+                overflow: visible;
             }
             
-            .left-column, .right-column {
-                padding: 40px;
+            .left-column {
+                grid-area: left;
+                padding: 30px;
+                border-right: 1px solid rgba(255,255,255,0.3);
+            }
+
+            .left-column::after {
+                display: none;
+            }
+            
+            .right-column {
+                grid-area: right;
+                padding: 30px;
+            }
+
+            .right-column::before {
+                display: none;
+            }
+
+            .center-column {
+                grid-area: center;
+                height: 400px;
+                background: rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .left-column, .right-column, .center-column {
+                width: 100%;
+                padding: 20px;
+                box-sizing: border-box;
+                border: none;
+            }
+
+            .center-column {
+                height: 300px;
+                order: -1;
+            }
+
+            .message {
+                font-size: 28px;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .stay-here-button {
+                width: 100%;
+                padding: 15px;
+                font-size: 20px;
+                margin-top: 20px;
+            }
+            
+            .eco-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .tip-text {
+                font-size: 20px;
+                text-align: center;
+                display: block;
+            }
+            
+            .chart-container {
+                height: 150px;
             }
         }
     </style>
@@ -370,7 +450,7 @@
         </div>
         <div class="right-column">
             <div>
-                <div class="message">Coucou, vous êtes toujours là ?</div>
+                <div class="message">Bonsoir, vous êtes toujours là ?</div>
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
                 </div>
