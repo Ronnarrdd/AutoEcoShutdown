@@ -799,9 +799,19 @@
             }
         }
 
-        // Mettre à jour les données écologiques toutes les 5 secondes
-        updateEcoData(); // Première mise à jour immédiate
-        setInterval(updateEcoData, 5000);
+        // Mettre à jour les données écologiques au démarrage et à l'affichage
+        updateEcoData(); // Première mise à jour (initialisation)
+        
+        // On met à jour une seule fois quand la fenêtre prend le focus (donc quand elle s'affiche)
+        let hasUpdatedOnFocus = false;
+        window.addEventListener('focus', () => {
+            if (!hasUpdatedOnFocus) {
+                updateEcoData();
+                hasUpdatedOnFocus = true;
+            }
+        });
+        
+        // setInterval(updateEcoData, 5000); // Désactivé pour garder les stats statiques
         
         // Mettre à jour le graphique toutes les 10 secondes
         updateChart(); // Première mise à jour immédiate

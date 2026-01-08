@@ -8,6 +8,23 @@ use chrono::{Local, Timelike};
 use std::process::Command;
 use tauri::Manager;
 
+const UPDATE_CHECK_SCRIPT: &str = r#"
+$ErrorActionPreference = "SilentlyContinue"
+try {
+    $session = New-Object -ComObject Microsoft.Update.Session
+    $searcher = $session.CreateUpdateSearcher()
+    $searcher.Online = $false
+    $result = $searcher.Search("IsInstalled=0 and Type='Software'")
+    $count = 0
+    foreach ($u in $result.Updates) {
+        if (!$u.IsDownloaded -and $u.AutoSelectOnWebSites) { $count++ }
+    }
+    Write-Output $count
+} catch {
+    Write-Output "0"
+}
+"#;
+
 #[derive(Clone, Serialize, Deserialize)]
 struct EcoData {
     current_watts: u32,
@@ -192,15 +209,54 @@ fn main() {
                 }));
             }
             
-            // Forcer la fenêtre au premier plan
-            let _ = window.set_always_on_top(true);
-            let _ = window.center();
-            let _ = window.set_focus();
-            let _ = window.show();
-            
-            // Forcer le focus pendant 30 secondes
+            // Déplacer la logique d'affichage et de boucle de focus dans un thread séparé
+            // pour permettre l'attente des mises à jour Windows
             let window_clone = window.clone();
             std::thread::spawn(move || {
+                // Boucle de vérification des mises à jour (Windows uniquement)
+                #[cfg(target_os = "windows")]
+                {
+                    use std::os::windows::process::CommandExt;
+                    println!("Démarrage de la vérification des mises à jour Windows...");
+                    loop {
+                        let output = Command::new("powershell")
+                            .args(["-NoProfile", "-Command", UPDATE_CHECK_SCRIPT])
+                            .creation_flags(0x08000000) // CREATE_NO_WINDOW
+                            .output();
+
+                        match output {
+                            Ok(output) => {
+                                let result = String::from_utf8_lossy(&output.stdout);
+                                let trimmed = result.trim();
+                                let count_str = trimmed.lines().last().unwrap_or("0");
+                                let count: i32 = count_str.parse().unwrap_or(0);
+                                
+                                println!("Mises à jour en attente de téléchargement : {}", count);
+                                
+                                if count == 0 {
+                                    println!("Aucune mise à jour en attente ou téléchargement terminé.");
+                                    break;
+                                }
+                                
+                                println!("Attente du téléchargement des mises à jour (nouvelle vérification dans 30s)...");
+                                std::thread::sleep(std::time::Duration::from_secs(30));
+                            }
+                            Err(e) => {
+                                println!("Erreur lors de la vérification des mises à jour : {}", e);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                println!("Affichage de la fenêtre principale...");
+                // Afficher la fenêtre une fois les mises à jour terminées
+                let _ = window_clone.show();
+                let _ = window_clone.set_always_on_top(true);
+                let _ = window_clone.center();
+                let _ = window_clone.set_focus();
+                
+                // Forcer le focus pendant 30 secondes
                 for _ in 0..120 {
                     std::thread::sleep(std::time::Duration::from_millis(250));
                     let _ = window_clone.show();
@@ -214,4 +270,3 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
