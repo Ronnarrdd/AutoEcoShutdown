@@ -271,3 +271,12 @@ if (ctx) {
         }
     });
 }
+
+// Raccourcis clavier pour fermer l'application
+document.addEventListener('keydown', (event) => {
+    // Si la touche est Espace ou Echap
+    if (event.code === 'Space' || event.code === 'Escape') {
+        event.preventDefault(); // Empêcher le comportement par défaut (ex: scroll)
+        closeApp();
+    }
+});
