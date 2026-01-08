@@ -113,12 +113,20 @@
             overflow: hidden;
         }
 
+        .shutdown-counter {
+            text-align: center;
+            font-size: clamp(14px, 1.5vw, 18px);
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
         .progress-bar {
-            height: clamp(6px, 0.8vh, 8px);
+            height: clamp(15px, 2vh, 20px);
             background: #f0f0f0;
-            border-radius: 4px;
+            border-radius: 10px;
             overflow: hidden;
-            margin-top: clamp(10px, 1.5vw, 15px);
+            margin-top: clamp(5px, 1vw, 10px);
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
             flex-shrink: 0;
         }
@@ -258,24 +266,26 @@
         }
 
         .eco-dashboard {
-            background: rgba(255, 152, 0, 0.1);
-            border-left: 3px solid #FF9800;
-            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+            border-radius: 12px;
             padding: clamp(10px, 1.5vw, 15px);
             margin: clamp(10px, 1.5vw, 15px) 0;
             backdrop-filter: blur(5px);
             overflow: hidden;
             flex-shrink: 1;
             min-height: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
         .eco-title {
             font-size: clamp(16px, 2vw, 20px);
-            color: #F57C00;
+            color: #E65100;
             margin-bottom: clamp(10px, 1.5vw, 15px);
             font-weight: 600;
             display: flex;
             align-items: center;
+            justify-content: center;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.5);
         }
 
         .eco-title::before {
@@ -285,36 +295,50 @@
 
         .eco-metrics {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: clamp(6px, 1vw, 10px);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: clamp(8px, 1.2vw, 12px);
             margin-bottom: clamp(8px, 1.2vw, 12px);
         }
 
         .metric-card {
-            background: rgba(255, 255, 255, 0.7);
-            padding: clamp(6px, 1vw, 10px);
-            border-radius: 6px;
-            text-align: center;
-            transition: transform 0.2s;
+            background: rgba(255, 255, 255, 0.6);
+            padding: clamp(8px, 1.2vw, 12px);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
             overflow: hidden;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.4);
         }
 
         .metric-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-color: rgba(255,255,255,0.8);
         }
 
-        .metric-value {
-            font-size: clamp(16px, 2vw, 22px);
+        .metric-icon {
+            font-size: clamp(20px, 2.5vw, 24px);
+            margin-right: clamp(10px, 1.5vw, 15px);
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .metric-content {
+            flex: 1;
+        }
+
+        .metric-text {
+            font-size: clamp(12px, 1.3vw, 14px);
+            color: #333;
+            line-height: 1.3;
+        }
+        
+        .metric-highlight {
             font-weight: bold;
             color: #D84315;
-            line-height: 1.2;
-        }
-
-        .metric-label {
-            font-size: clamp(9px, 1vw, 11px);
-            color: #666;
-            margin-top: 3px;
-            line-height: 1.2;
         }
 
         .eco-equivalents {
@@ -341,6 +365,37 @@
         .equivalent-trees::before { content: '🌳'; }
         .equivalent-car::before { content: '🚗'; }
         .equivalent-co2::before { content: '💨'; }
+
+        .cost-estimator {
+            margin-top: clamp(10px, 1.5vw, 15px);
+            padding: clamp(10px, 1.5vw, 15px);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            text-align: center;
+            border: 1px dashed rgba(230, 81, 0, 0.3);
+        }
+
+        .cost-main {
+            font-size: clamp(14px, 1.5vw, 16px);
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .cost-value {
+            font-size: clamp(20px, 2.5vw, 26px);
+            font-weight: bold;
+            color: #E65100;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .cost-detail {
+            font-size: clamp(10px, 1vw, 12px);
+            color: #777;
+            margin-top: 6px;
+            font-style: italic;
+        }
 
         .stay-here-button {
             background: linear-gradient(135deg, #29B1B0, #00B2B9);
@@ -527,6 +582,7 @@
         <div class="right-column">
             <div>
                 <div class="message">Bonsoir, vous êtes toujours là ?</div>
+                <div id="shutdownCounter" class="shutdown-counter">Votre ordinateur s'éteindra au bout de : 15:00 minutes</div>
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
                 </div>
@@ -536,36 +592,53 @@
 
                 <!-- Tableau de bord écologique -->
                 <div class="eco-dashboard">
-                    <div class="eco-title">Gaspillage Énergétique</div>
+                    <div class="eco-title">Impact si vous laissez allumé ce soir</div>
                     
                     <div class="eco-metrics">
                         <div class="metric-card">
-                            <div class="metric-value" id="currentWatts">-</div>
-                            <div class="metric-label">Watts actuels</div>
+                            <div class="metric-icon">💡</div>
+                            <div class="metric-content">
+                                <span class="metric-text">C'est comme laisser <span class="metric-highlight" id="bulbEquivalent">-</span> ampoules allumées toute la nuit</span>
+                            </div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value" id="hoursUntilMorning">-</div>
-                            <div class="metric-label">Heures jusqu'au matin</div>
+                            <div class="metric-icon">📱</div>
+                            <div class="metric-content">
+                                <span class="metric-text">De quoi recharger <span class="metric-highlight" id="phoneEquivalent">-</span> fois votre smartphone</span>
+                            </div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value" id="energyWasted">-</div>
-                            <div class="metric-label">Wh gaspillés si laissé allumé</div>
+                            <div class="metric-icon">🚗</div>
+                            <div class="metric-content">
+                                <span class="metric-text">Équivalent à parcourir <span class="metric-highlight" id="carEquivalent">-</span> km en voiture inutilement</span>
+                            </div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value" id="cpuUsage">-</div>
-                            <div class="metric-label">CPU utilisé</div>
+                            <div class="metric-icon">☕</div>
+                            <div class="metric-content">
+                                <span class="metric-text">L'énergie pour chauffer <span class="metric-highlight" id="coffeeEquivalent">-</span> tasses de café</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📺</div>
+                            <div class="metric-content">
+                                <span class="metric-text">De quoi regarder la TV pendant <span class="metric-highlight" id="tvEquivalent">-</span> heures</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🌳</div>
+                            <div class="metric-content">
+                                <span class="metric-text">Il faudrait <span class="metric-highlight" id="treesEquivalent">-</span> arbre(s) pour absorber ce CO₂</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="eco-equivalents">
-                        <div class="equivalent-item equivalent-co2">
-                            <span id="co2Equivalent">Calcul en cours...</span>
+
+                    <div class="cost-estimator">
+                        <div class="cost-main">
+                            Si vous laissez allumé votre ordinateur toutes les nuits (18h-8h), vous gaspillez <span class="cost-value" id="yearCost">- €</span> par an
                         </div>
-                        <div class="equivalent-item equivalent-trees">
-                            <span id="treesEquivalent">Calcul en cours...</span>
-                        </div>
-                        <div class="equivalent-item equivalent-car">
-                            <span id="carEquivalent">Calcul en cours...</span>
+                        <div class="cost-detail">
+                            Calcul : <span id="currentWattsDetail">-</span>W x 14h x 365j x 0.2016€/kWh
                         </div>
                     </div>
                 </div>
@@ -582,6 +655,7 @@
         
         let timeLeft = 15 * 60; // 15 minutes en secondes
         const progressBar = document.getElementById('progress');
+        const shutdownCounter = document.getElementById('shutdownCounter');
         const stayHereButton = document.getElementById('stayHereButton');
         const tips = document.querySelectorAll('.tip-item');
         const images = document.querySelectorAll('.image-item');
@@ -599,6 +673,12 @@
             const percentage = (timeLeft / (15 * 60)) * 100;
             progressBar.style.width = `${percentage}%`;
             
+            // Update counter text
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            shutdownCounter.textContent = `Votre ordinateur s'éteindra au bout de : ${formattedTime} minutes`;
+
             if (timeLeft <= 4 * 60) { // 4 minutes restantes
                 progressBar.classList.add('warning');
             }
@@ -634,30 +714,62 @@
             try {
                 const ecoData = await invoke('get_eco_data');
                 
-                // Mettre à jour les métriques
-                document.getElementById('currentWatts').textContent = ecoData.current_watts + 'W';
-                document.getElementById('hoursUntilMorning').textContent = Math.round(ecoData.hours_until_morning) + 'h';
-                document.getElementById('energyWasted').textContent = ecoData.energy_wasted_wh + 'Wh';
-                document.getElementById('cpuUsage').textContent = ecoData.cpu_usage + '%';
+                // Calculs pour les équivalents visuels
+                // On base tout sur l'énergie gaspillée totale (energy_wasted_wh)
                 
-                // Mettre à jour les équivalents écologiques (gaspillage)
-                document.getElementById('co2Equivalent').textContent = 
-                    `${ecoData.co2_wasted_kg.toFixed(2)} kg de CO₂ gaspillés jusqu'au matin`;
-                
-                if (ecoData.trees_equivalent >= 0.001) {
-                    document.getElementById('treesEquivalent').textContent = 
-                        `Impact de ${ecoData.trees_equivalent.toFixed(3)} arbre à replanter`;
+                // 1 ampoule LED = ~10W
+                // Combien d'ampoules allumées toute la durée restante ?
+                // Energie = Puissance * Temps => Puissance = Energie / Temps
+                // Puissance équivalente gaspillée = energy_wasted_wh / hours_until_morning
+                // Nombre d'ampoules = Puissance équivalente / 10
+                let bulbs = 0;
+                if (ecoData.hours_until_morning > 0.1) {
+                    const equivalentPower = ecoData.energy_wasted_wh / ecoData.hours_until_morning;
+                    bulbs = Math.max(1, Math.round(equivalentPower / 10));
                 } else {
-                    document.getElementById('treesEquivalent').textContent = 
-                        'Chaque minute compte pour la planète !';
+                    // Fallback si temps très court
+                    bulbs = Math.max(1, Math.round(ecoData.current_watts / 10));
                 }
                 
+                // 1 charge smartphone = ~12Wh
+                // Energie gaspillée (Wh) = ecoData.energy_wasted_wh
+                const phones = Math.max(1, Math.round(ecoData.energy_wasted_wh / 12));
+                
+                // 1 tasse de café (chauffer l'eau) = ~25Wh
+                const coffees = Math.max(1, Math.round(ecoData.energy_wasted_wh / 25));
+
+                // 1 heure de TV LED (moyenne) = ~80Wh
+                const tvHours = (ecoData.energy_wasted_wh / 80).toFixed(1);
+
+                // Calcul du coût annuel (de 18h à 8h = 14h par jour)
+                // Prix kWh = 0.2016€
+                // Watt actuels / 1000 = kW
+                // kW * 14h * 365j * Prix
+                const kwhPrice = 0.2016;
+                const dailyHours = 14; // 18h à 8h
+                const currentKw = ecoData.current_watts / 1000;
+                const yearlyCost = currentKw * dailyHours * 365 * kwhPrice;
+
+                // Mettre à jour les métriques visuelles
+                document.getElementById('bulbEquivalent').textContent = bulbs;
+                document.getElementById('phoneEquivalent').textContent = phones;
+                document.getElementById('coffeeEquivalent').textContent = coffees;
+                document.getElementById('tvEquivalent').textContent = tvHours;
+                
+                // Mettre à jour le coût annuel
+                document.getElementById('yearCost').textContent = yearlyCost.toFixed(2) + ' €';
+                document.getElementById('currentWattsDetail').textContent = ecoData.current_watts;
+                
                 if (ecoData.car_km_equivalent >= 0.1) {
-                    document.getElementById('carEquivalent').textContent = 
-                        `Comme rouler ${ecoData.car_km_equivalent.toFixed(1)} km en voiture`;
+                    document.getElementById('carEquivalent').textContent = ecoData.car_km_equivalent.toFixed(1);
                 } else {
-                    document.getElementById('carEquivalent').textContent = 
-                        'Pollution équivalente à quelques mètres en voiture';
+                    document.getElementById('carEquivalent').textContent = "quelques mètres";
+                }
+
+                if (ecoData.trees_equivalent >= 0.001) {
+                    document.getElementById('treesEquivalent').textContent = ecoData.trees_equivalent.toFixed(3);
+                } else {
+                    document.getElementById('treesEquivalent').textContent = "une fraction d'";
                 }
                 
             } catch (error) {
