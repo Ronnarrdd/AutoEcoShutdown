@@ -88,7 +88,7 @@ fn get_real_power_consumption(sys: &mut System) -> (u32, u32, u32) {
 
 #[tauri::command]
 async fn get_eco_data(state: tauri::State<'_, Arc<Mutex<AppState>>>) -> Result<EcoData, String> {
-    let mut sys = System::new_all();
+    let mut sys = System::new();
     
     let (current_watts, cpu_usage, memory_usage) = get_real_power_consumption(&mut sys);
     
