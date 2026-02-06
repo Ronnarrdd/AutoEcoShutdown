@@ -44,6 +44,7 @@ struct EcoData {
 struct AppState {
     session_start_time: std::time::Instant,
     total_saved_energy: f32,
+    sys: System,
 }
 
 // Fonctions de calcul écologique
@@ -66,9 +67,9 @@ fn get_real_power_consumption(sys: &mut System) -> (u32, u32, u32) {
     sys.refresh_cpu();
     sys.refresh_memory();
     
-    // Attendre un peu pour avoir des données CPU précises
-    std::thread::sleep(std::time::Duration::from_millis(200));
-    sys.refresh_cpu();
+    // Optimisation: Plus besoin d'attendre 200ms + refresh.
+    // On utilise l'instance persistante de System, donc refresh_cpu()
+    // nous donne l'utilisation moyenne depuis le dernier appel.
     
     // Calcul de l'utilisation CPU moyenne
     let cpu_usage = sys.global_cpu_info().cpu_usage();
@@ -88,13 +89,12 @@ fn get_real_power_consumption(sys: &mut System) -> (u32, u32, u32) {
 
 #[tauri::command]
 async fn get_eco_data(state: tauri::State<'_, Arc<Mutex<AppState>>>) -> Result<EcoData, String> {
-    let mut sys = System::new_all();
+    let mut state_lock = state.lock().map_err(|e| e.to_string())?;
     
-    let (current_watts, cpu_usage, memory_usage) = get_real_power_consumption(&mut sys);
+    // Utilisation de l'instance système partagée (beaucoup plus rapide que new_all())
+    let (current_watts, cpu_usage, memory_usage) = get_real_power_consumption(&mut state_lock.sys);
     
-    let state_lock = state.lock().map_err(|e| e.to_string())?;
     let session_duration_hours = state_lock.session_start_time.elapsed().as_secs_f32() / 3600.0;
-    drop(state_lock);
     
     // Calculer l'énergie qui serait gaspillée pendant une nuit complète (8 heures)
     let night_duration_hours = 8.0;
@@ -162,9 +162,17 @@ async fn close_app(app: tauri::AppHandle) -> Result<(), String> {
 }
 
 fn main() {
+    // Initialisation unique du système pour les performances
+    // System::new() est beaucoup plus léger que new_all()
+    let mut sys = System::new();
+    // Initial refresh pour éviter le premier 0
+    sys.refresh_cpu();
+    sys.refresh_memory();
+
     let app_state = Arc::new(Mutex::new(AppState {
         session_start_time: std::time::Instant::now(),
         total_saved_energy: 0.0,
+        sys,
     }));
 
     tauri::Builder::default()
